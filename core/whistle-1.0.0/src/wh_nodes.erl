@@ -206,7 +206,7 @@ print_media_server(Server) ->
 print_media_server({Name, JObj}, Format) ->
     io:format(lists:flatten([Format, ?MEDIA_SERVERS_DETAIL, "~n"]),
               [Name
-              ,wh_util:pretty_print_elapsed_s(wh_util:elapsed_s(wh_json:get_integer_value(<<"Startup">>, JObj)))          
+              ,wh_util:pretty_print_elapsed_s(wh_util:elapsed_s(wh_json:get_integer_value(<<"Startup">>, JObj)))
               ]).
 
 -spec status_list(whapps_info(), 0..4) -> 'ok'.
@@ -490,11 +490,14 @@ maybe_add_ecallmgr_data(Node) ->
 
 -spec add_ecallmgr_data(wh_node()) -> wh_node().
 add_ecallmgr_data(#node{whapps=Whapps}=Node) ->
-    Servers = [{wh_util:to_binary(Server), 
-                wh_json:set_values(
-                  [{<<"Startup">>, Started}
-                   ,{<<"Interface">>, wh_json:from_list(ecallmgr_fs_node:interface(Server))}
-                  ], wh_json:new())}              
+    Servers = [{wh_util:to_binary(Server)
+                ,wh_json:set_values(
+                   [{<<"Startup">>, Started}
+                    ,{<<"Interface">>, wh_json:from_list(ecallmgr_fs_node:interface(Server))}
+                   ]
+                   ,wh_json:new()
+                  )
+               }
                || {Server, Started} <- ecallmgr_fs_nodes:connected('true')
               ],
     Node#node{media_servers=Servers
